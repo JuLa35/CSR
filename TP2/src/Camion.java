@@ -23,6 +23,7 @@ public class Camion extends Thread {
 	}
 	
 	public void equilibrage() {
+		this.siteActuel.camionIsHere(true);
 		int nbv = siteActuel.getnbV();
 		if(nbv > siteActuel.borneSup) {
 			while(nbv > siteActuel.stockInit) {
@@ -37,6 +38,11 @@ public class Camion extends Thread {
 				this.nbVelo --;
 			}
 		}
+		this.siteActuel.camionIsHere(false);
+	}
+	
+	public Site siteActuelCamion(){
+		return this.siteActuel;
 	}
 	
 	public void run() {

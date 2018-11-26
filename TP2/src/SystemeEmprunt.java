@@ -17,7 +17,7 @@ private static Site[] sites = new Site[nbSites];
 private Client[] clients = new Client[maxClients];
 private int nbClients = 0;
 
-private Camion c;
+private Camion camion;
 
 
 /* Cette fonction crï¿½e un seul client ï¿½ la fois (ï¿½ la limite aucun).
@@ -45,7 +45,7 @@ private boolean nouveauClient() {
 
 }
 
-private boolean nouveauClient(Site siteD, Site siteF) {
+private synchronized boolean nouveauClient(Site siteD, Site siteF) {
 	
 	if(nbClients == maxClients) {
 		System.out.println("Le nombre maximum de clients est"
@@ -80,15 +80,18 @@ public SystemeEmprunt() {
 	int i;
 
 	/* Instanciation des sites */
-	for(i = 0; i < nbSites; i++)
+	for(i = 0; i < nbSites; i++){
 		sites[i] = new Site(i);
-
+	}
+	for(i = 0; i< maxClients; i++){
+		int[] numSites = randomSite();
+		nouveauClient(sites[numSites[0]], sites[numSites[1]]);
+	}
 	/* Instanciation du camion et des clients */
 	/*for( i = 0; i < maxClients; i++) {
 		nouveauClient();
 	}*/
-
-	int[] numSites = randomSite();
+	/*int[] numSites = randomSite();
 	nouveauClient(sites[numSites[0]], sites[numSites[1]]);
 	numSites = randomSite();
 	nouveauClient(sites[numSites[0]], sites[numSites[1]]);
@@ -97,9 +100,9 @@ public SystemeEmprunt() {
 	numSites = randomSite();
 	nouveauClient(sites[numSites[0]], sites[numSites[1]]);
 	numSites = randomSite();
-	nouveauClient(sites[numSites[0]], sites[numSites[1]]);
+	nouveauClient(sites[numSites[0]], sites[numSites[1]]);*/
 	
-	this.c = new Camion(10, sites[0]);
+	this.camion = new Camion(10, sites[0]);
 	
     /* ... */
 }
@@ -110,15 +113,27 @@ public static void afficherEtatSites() {
 	System.out.println("Site 2 : Velos = " + sites[2].getnbV());
 	System.out.println("Site 3 : Velos = " + sites[3].getnbV());
 	System.out.println("Site 4 : Velos = " + sites[4].getnbV());
+	System.out.println("\n");
+	//System.out.println("Il y avait " + (5*6) +" vélos, et il reste :" + (sites[0].getnbV() + sites[1].getnbV() + sites[2].getnbV() + sites[3].getnbV() + sites[4].getnbV()) );
 }
 
 public void run() {
-	clients[0].start();
+	int i =0;
+	camion.start();
+	for(Client c : clients){
+		c.start();
+		if(i%5 == 4){
+			System.out.println("Apres " + i + " clients \n");
+			afficherEtatSites();
+		}
+		i++;
+	}
+	/*clients[0].start();
 	clients[1].start();
 	clients[2].start();
 	clients[3].start();
-	clients[4].start();
-	c.start();
+	clients[4].start();*/
+	
 }
 
 /* Point d'entrï¿½e du programme */
@@ -126,9 +141,10 @@ public void run() {
 public static void main(String[] args) {
 
 	SystemeEmprunt se = new SystemeEmprunt();
-	se.run();
+	System.out.println("Début \n");
 	se.afficherEtatSites();
-
+	se.start();
+	
 }
 
 

@@ -11,27 +11,31 @@ public class Client extends Thread{
 		this.nbClients = nbClients;
 	}
 	
-	public void emprunt() {
-		while (siteD.getnbV() == 0) {
+	public synchronized void emprunt() throws InterruptedException {
+		while (siteD.getnbV() == 0 || siteD.camionIsHere()) {
+			wait();
 		}
 		siteD.prendreV();
 	}
 	
-	public void depot() {
-		while (siteF.getnbV() == 10) {
-			
+	public synchronized void depot() throws InterruptedException{
+		while (siteF.getnbV() == 10 || siteF.camionIsHere()) {
+			wait();
 		}
 		siteF.deposerV();
 	}
 	
-	public void run() {
-		emprunt();
+	public synchronized void run() {
 		try {
+			notifyAll();
+			emprunt();
 			int duree = Math.abs(siteF.getNumSite()-siteD.getNumSite());
 			sleep(100* duree);
+			depot();
+			notifyAll();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		depot();
 	}
+	
 }
